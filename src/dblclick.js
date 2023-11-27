@@ -1,11 +1,11 @@
-export function setupExtDoubleClick(
+export const setupExtDoubleClick = (
   websiteUrl,
   dictionary,
   showFirstEntry,
   areaClass,
   maxAllowedWords,
   target
-) {
+) => {
   setupDoubleClick(
     websiteUrl,
     dictionary,
@@ -23,117 +23,100 @@ export function setupExtDoubleClick(
       );
     }
   );
-}
+};
 
-export function setupDoubleClickJquery(
-  websiteUrl,
-  dictionary,
-  showFirstEntry,
-  areaClass,
-  maxAllowedWords,
-  target,
-  urlCallback
-) {
-  //warning message for developers
-  if (!websiteUrl || !dictionary) {
-    alert(
-      "Please specify required parameters (websiteUrl and dictionary) to setupDoubleClick()"
+// opens the definition popup
+const openPopup = (lookup, translateDictionary) => {
+  let searchUrl;
+  if (urlCallback)
+    searchUrl = urlCallback(
+      websiteUrl,
+      translateDictionary,
+      showFirstEntry,
+      lookup
     );
-    return;
+  else
+    searchUrl =
+      websiteUrl +
+      "search/" +
+      (translateDictionary ? translateDictionary + "/" : "") +
+      (showFirstEntry ? "direct/" : "") +
+      "?q=" +
+      lookup;
+
+  if (target) {
+    if (target == "self") {
+      window.location.href = searchUrl;
+      return;
+    }
+    let popup = window.open(
+      searchUrl,
+      target,
+      "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=no,copyhistory=no,width=915,height=760,top=300,left=300"
+    );
+    if (popup) popup.focus();
+  } else {
+    window.open(searchUrl, "cup_lookup");
   }
+};
 
-  //shows the definition layer
-  var showLayer = function (e) {
-    var translateDictionary = dictionary;
-    var node = e.target || e.srcElement;
-    while (node != null) {
-      var lang = node.getAttribute("dict");
-      if (lang) {
-        translateDictionary = lang;
-        break;
-      }
-      if (node.parentNode == node.ownerDocument) {
-        break;
-      }
-      node = node.parentNode;
+// shows the definition layer
+const showLayer = (e) => {
+  let translateDictionary = dictionary;
+  let node = e.target || e.srcElement;
+  while (node != null) {
+    let lang = node.getAttribute("dict");
+    if (lang) {
+      translateDictionary = lang;
+      break;
     }
-    e.preventDefault();
-    var lookup = getSelectedText();
-    lookup = lookup.replace(/[\.\*\?;!()\+,\[:\]<>^_`\[\]{}~\\\/\"\'=]/g, " ");
-    lookup = lookup.replace(/\s+/g, " ");
-    if (lookup != null && lookup.replace("/s/g", "").length > 0) {
-      //disable the double-click feature if the lookup string
-      //exceeds the maximum number of allowable words
-      if (maxAllowedWords && lookup.split(/[ -]/).length > maxAllowedWords)
-        return;
-
-      //append the layer to the DOM only once
-      if ($("#definition_layer").length == 0) {
-        var imageUrl =
-          websiteUrl + "external/images/doubleclick/definition-layer.gif";
-        $("body").append(
-          "<div id='definition_layer' style='position:absolute; cursor:pointer;'><img src='" +
-            imageUrl +
-            "' alt='' title=''/></div>"
-        );
-      }
-
-      //move the layer at the cursor position
-      $("#definition_layer").map(function () {
-        $(this).css({ left: e.pageX - 30, top: e.pageY - 40 });
-      });
-
-      //open the definition popup clicking on the layer
-      $("#definition_layer").mouseup(function (e) {
-        e.stopPropagation();
-        openPopup(lookup, translateDictionary);
-      });
-    } else {
-      $("#definition_layer").remove();
+    if (node.parentNode == node.ownerDocument) {
+      break;
     }
-  };
+    node = node.parentNode;
+  }
+  e.preventDefault();
+  let lookup = getSelectedText();
+  console.log("🚀 ~ file: dblclick.js:170 ~ showLayer ~ lookup:", lookup);
+  lookup = lookup.replace(/[\.\*\?;!()\+,\[:\]<>^_`\[\]{}~\\\/\"\'=]/g, " ");
+  lookup = lookup.replace(/\s+/g, " ");
+  if (lookup != null && lookup.replace("/s/g", "").length > 0) {
+    // disable the double-click feature if the lookup string
+    // exceeds the maximum number of allowable words
+    if (maxAllowedWords && lookup.split(/[ -]/).length > maxAllowedWords)
+      return;
 
-  //opens the definition popup
-  var openPopup = function (lookup, translateDictionary) {
-    var searchUrl;
-    if (urlCallback)
-      searchUrl = urlCallback(
-        websiteUrl,
-        translateDictionary,
-        showFirstEntry,
-        lookup
-      );
-    else
-      searchUrl =
-        websiteUrl +
-        "search/" +
-        (translateDictionary ? translateDictionary + "/" : "") +
-        (showFirstEntry ? "direct/" : "") +
-        "?q=" +
-        lookup;
-
-    if (target) {
-      if (target == "self") {
-        window.location.href = searchUrl;
-        return;
-      }
-      var popup = window.open(
-        searchUrl,
-        target,
-        "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=no,copyhistory=no,width=915,height=760,top=300,left=300"
-      );
-      if (popup) popup.focus();
-    } else {
-      window.open(searchUrl, "cup_lookup");
+    // append the layer to the DOM only once
+    if (!document.getElementById("definition_layer")) {
+      let imageUrl =
+        websiteUrl + "external/images/doubleclick/definition-layer.gif";
+      let definitionLayer = document.createElement("div");
+      definitionLayer.id = "definition_layer";
+      definitionLayer.style.cssText = "position:absolute; cursor:pointer;";
+      definitionLayer.innerHTML =
+        "<img src='" + imageUrl + "' alt='' title=''/>";
+      document.body.appendChild(definitionLayer);
     }
-    /*window.location.href = searchUrl;*/
-  };
 
-  var area = areaClass ? "." + areaClass : "body";
-  $(area).mouseup(showLayer);
-}
+    // move the layer at the cursor position
+    let definitionLayerEle = document.getElementById("definition_layer");
+    definitionLayerEle.style.left = e.pageX - 30 + "px";
+    definitionLayerEle.style.top = e.pageY - 40 + "px";
 
-export function setupDoubleClick(
+    // open the definition popup clicking on the layer
+    definitionLayerEle.addEventListener("mouseup", function (e) {
+      e.stopPropagation();
+      openPopup(lookup, translateDictionary);
+    });
+  } else {
+    let definitionLayerEle = document.getElementById("definition_layer");
+    if (definitionLayerEle) {
+      definitionLayerEle.parentNode.removeChild(definitionLayerEle);
+    }
+  }
+};
+
+export const setupDoubleClick = (
   websiteUrl,
   dictionary,
   showFirstEntry,
@@ -141,7 +124,7 @@ export function setupDoubleClick(
   maxAllowedWords,
   target,
   urlCallback
-) {
+) => {
   // warning message for developers
   if (!websiteUrl || !dictionary) {
     alert(
@@ -150,107 +133,16 @@ export function setupDoubleClick(
     return;
   }
 
-  // shows the definition layer
-  var showLayer = function (e) {
-    var translateDictionary = dictionary;
-    var node = e.target || e.srcElement;
-    while (node != null) {
-      var lang = node.getAttribute("dict");
-      if (lang) {
-        translateDictionary = lang;
-        break;
-      }
-      if (node.parentNode == node.ownerDocument) {
-        break;
-      }
-      node = node.parentNode;
-    }
-    e.preventDefault();
-    var lookup = getSelectedText();
-    console.log("🚀 ~ file: dblclick.js:170 ~ showLayer ~ lookup:", lookup)
-    lookup = lookup.replace(/[\.\*\?;!()\+,\[:\]<>^_`\[\]{}~\\\/\"\'=]/g, " ");
-    lookup = lookup.replace(/\s+/g, " ");
-    if (lookup != null && lookup.replace("/s/g", "").length > 0) {
-      // disable the double-click feature if the lookup string
-      // exceeds the maximum number of allowable words
-      if (maxAllowedWords && lookup.split(/[ -]/).length > maxAllowedWords)
-        return;
-
-      // append the layer to the DOM only once
-      if (!document.getElementById("definition_layer")) {
-        var imageUrl =
-          websiteUrl + "external/images/doubleclick/definition-layer.gif";
-        var definitionLayer = document.createElement("div");
-        definitionLayer.id = "definition_layer";
-        definitionLayer.style.cssText = "position:absolute; cursor:pointer;";
-        definitionLayer.innerHTML =
-          "<img src='" + imageUrl + "' alt='' title=''/>";
-        document.body.appendChild(definitionLayer);
-      }
-
-      // move the layer at the cursor position
-      var definitionLayer = document.getElementById("definition_layer");
-      definitionLayer.style.left = e.pageX - 30 + "px";
-      definitionLayer.style.top = e.pageY - 40 + "px";
-
-      // open the definition popup clicking on the layer
-      definitionLayer.addEventListener("mouseup", function (e) {
-        e.stopPropagation();
-        openPopup(lookup, translateDictionary);
-      });
-    } else {
-      var definitionLayer = document.getElementById("definition_layer");
-      if (definitionLayer) {
-        definitionLayer.parentNode.removeChild(definitionLayer);
-      }
-    }
-  };
-
-  // opens the definition popup
-  var openPopup = function (lookup, translateDictionary) {
-    var searchUrl;
-    if (urlCallback)
-      searchUrl = urlCallback(
-        websiteUrl,
-        translateDictionary,
-        showFirstEntry,
-        lookup
-      );
-    else
-      searchUrl =
-        websiteUrl +
-        "search/" +
-        (translateDictionary ? translateDictionary + "/" : "") +
-        (showFirstEntry ? "direct/" : "") +
-        "?q=" +
-        lookup;
-
-    if (target) {
-      if (target == "self") {
-        window.location.href = searchUrl;
-        return;
-      }
-      var popup = window.open(
-        searchUrl,
-        target,
-        "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=no,copyhistory=no,width=915,height=760,top=300,left=300"
-      );
-      if (popup) popup.focus();
-    } else {
-      window.open(searchUrl, "cup_lookup");
-    }
-  };
-
-  var area = areaClass ? "." + areaClass : "body";
+  let area = areaClass ? "." + areaClass : "body";
   document.querySelector(area).addEventListener("mouseup", showLayer);
-}
+};
 
 /*
  * Cross-browser function to get selected text
  */
-export function getSelectedText() {
+export const getSelectedText = () => {
   if (window.getSelection) return window.getSelection().toString();
   else if (document.getSelection) return document.getSelection();
   else if (document.selection) return document.selection.createRange().text;
   return "";
-}
+};

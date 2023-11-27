@@ -1,6 +1,7 @@
 {
   "rules": {
-    "quotes": ["error", "double"]
+    "quotes": ["error", "double"],
+    "no-var": 1
   },
   "parserOptions": {
     "ecmaVersion": "latest",
