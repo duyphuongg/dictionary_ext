@@ -1,11 +1,17 @@
-import { setupDoubleClick } from "./dblclick";
+import { setupDoubleClick } from "~/utils/dblclick";
+import initApp from "~/app";
 
-window.addEventListener("load", _.debounce(setupDoubleClickFunction));
+window.addEventListener("load", _.debounce(init));
+
+function init() {
+  initApp();
+  setupDoubleClickFunction();
+}
 
 function setupDoubleClickFunction() {
   setupDoubleClick(
     "https://dictionary.cambridge.org/",
-    "british",
+    "english-vietnamese",
     false,
     null,
     5,
