@@ -4,8 +4,9 @@ const ESLintPlugin = require("eslint-webpack-plugin")
 
 module.exports = {
   entry: {
-    contentScript: "./src/contentScript.js",
-    popup: "./src/popup.js"
+    contentScript: path.resolve(__dirname, "src/modules/contentScript.js"),
+    background: path.resolve(__dirname, "src/modules/background.js"),
+    popup: path.resolve(__dirname, "src/modules/popup.js")
   },
   output: {
     filename: "[name].js",
