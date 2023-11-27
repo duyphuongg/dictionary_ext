@@ -1,21 +1,21 @@
 {
   "manifest_version": 3,
-  "name": "My clock",
-  "description": "Hiển thị giờ ở Việt Nam và Malaysia",
-  "author": "duyphuong",
+  "name": "My dictionary",
+  "description": "My dictionary",
+  "author": "duyphuongg",
   "version": "1.0",
   "action": {
     "default_icon": {
-      "16": "images/clock_16.png",
-      "48": "images/clock_16.png",
-      "128": "images/clock_16.png"
+      "16": "images/dictionary.png",
+      "48": "images/dictionary.png",
+      "128": "images/dictionary.png"
     },
     "default_popup": "popup.html"
   },
   "icons": {
-    "16": "images/clock_16.png",
-    "48": "images/clock_16.png",
-    "128": "images/clock_16.png"
+    "16": "images/dictionary.png",
+    "48": "images/dictionary.png",
+    "128": "images/dictionary.png"
   },
   "content_scripts": [
     {

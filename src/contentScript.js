@@ -1,13 +1,17 @@
-import { run } from "./helper";
-import { getStorage } from "./helper";
-import { SHOW_BOTTOM, SHOW_BOTTOM_DEFAULT } from "./constant";
+import { setupDoubleClick } from "./dblclick";
 
-const handleDisplay = async () => {
-  const checkShowStorage = await getStorage(SHOW_BOTTOM);
-  const isShow = checkShowStorage[SHOW_BOTTOM] || SHOW_BOTTOM_DEFAULT;
-  if (isShow) {
-    run();
-  }
+window.addEventListener(
+  "load",
+  _.debounce(setupDoubleClickFunction)
+);
+
+function setupDoubleClickFunction() {
+  setupDoubleClick(
+    "https://dictionary.cambridge.org/",
+    "british",
+    false,
+    null,
+    5,
+    "popup"
+  );
 }
-
-handleDisplay()
