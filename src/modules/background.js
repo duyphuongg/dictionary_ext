@@ -9,6 +9,7 @@ import {
   putAPI,
   post,
 } from "~/utils/fetch";
+import { addScriptToDom } from "~/utils/helper";
 
 initListenerTab();
 

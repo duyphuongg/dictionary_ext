@@ -1,20 +1,20 @@
-import { setupDoubleClick } from "~/utils/dblclick";
-import initApp from "~/app";
+import { setupDoubleClick } from "~/utils/dblclick-translate";
+// import initApp from "~/app";
 
 window.addEventListener("load", _.debounce(init));
 
 function init() {
-  initApp();
-  setupDoubleClickFunction();
+  // initApp();
+  setupDoubleClickTranslate();
 }
 
-function setupDoubleClickFunction() {
+function setupDoubleClickTranslate() {
   setupDoubleClick(
     "https://dictionary.cambridge.org/",
     "english-vietnamese",
     false,
     null,
-    5,
+    200,
     "popup"
   );
 }

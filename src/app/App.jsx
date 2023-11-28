@@ -1,6 +1,7 @@
+import TranslateIfame from "./TranslateIfame/index.jsx";
+
 const App = () => {
-  // useEffect(() => {}, []);
-  return <div>Dictionary Extension</div>;
+  return <TranslateIfame />;
 };
 
 export default App;
